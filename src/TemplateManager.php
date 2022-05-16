@@ -21,30 +21,10 @@ class TemplateManager
     private function computeText($text, array $data)
     {
         foreach ($this->placeholdersReplacers as $placeholdersReplacer) {
-            $placeholdersReplacer->replace($text);
+            $text = $placeholdersReplacer->replace($text);
         }
         
         $APPLICATION_CONTEXT = ApplicationContext::getInstance();
-
-        $quote = (isset($data['quote']) && $data['quote'] instanceof Quote) ? $data['quote'] : null;
-
-        if ($quote)
-        {
-            $_quoteFromRepository = QuoteRepository::getInstance()->getById($quote->id);
-            $usefulObject = SiteRepository::getInstance()->getById($quote->siteId);
-            $destinationOfQuote = DestinationRepository::getInstance()->getById($quote->destinationId);
-
-            if(strpos($text, '[quote:destination_link]') !== false){
-                $destination = DestinationRepository::getInstance()->getById($quote->destinationId);
-            }
-
-            (strpos($text, '[quote:destination_name]') !== false) && $text = str_replace('[quote:destination_name]',$destinationOfQuote->countryName,$text);
-        }
-
-        if (isset($destination))
-            $text = str_replace('[quote:destination_link]', $usefulObject->url . '/' . $destination->countryName . '/quote/' . $_quoteFromRepository->id, $text);
-        else
-            $text = str_replace('[quote:destination_link]', '', $text);
 
         /*
          * USER

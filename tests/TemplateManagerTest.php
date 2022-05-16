@@ -32,33 +32,32 @@ class TemplateManagerTest extends TestCase
     {
     }
 
-    /**
-     * @test
-     */
-    public function test()
+    public function testAllPlaceholdersAreReplaced()
     {
         $faker = \Faker\Factory::create();
 
-        $destinationId                  = $faker->randomNumber();
-        $expectedDestination = DestinationRepository::getInstance()->getById($destinationId);
-        $expectedUser        = ApplicationContext::getInstance()->getCurrentUser();
-
+        $destinationId = $faker->randomNumber();
+        $destination = DestinationRepository::getInstance()->getById($destinationId);
+        $expectedUser = ApplicationContext::getInstance()->getCurrentUser();
         $quote = new Quote($faker->randomNumber(), $faker->randomNumber(), $destinationId, $faker->date());
+        $site = SiteRepository::getInstance()->getById($quote->siteId);
+        $url = $site->url . '/' . $destination->countryName . '/quote/' . $quote->id;
 
         $template = new Template(
             1,
-            'Votre livraison à [quote:destination_name]',
+            'Votre livraison à '.QuoteReplacer::DESTINATION_NAME_PLACEHOLDER,
             "
 Bonjour [user:first_name],
 
-Merci de nous avoir contacté pour votre livraison à [quote:destination_name].
+Merci de nous avoir contacté pour votre livraison à ".QuoteReplacer::DESTINATION_NAME_PLACEHOLDER.".
+Voici le lien pour suivre votre livraison : ".QuoteReplacer::DESTINATION_LINK_PLACEHOLDER."
 
 Bien cordialement,
 
 L'équipe Calmedica.com
 ");
         $templateManager = new TemplateManager();
-        $quoteReplacer = new QuoteReplacer($quote);
+        $quoteReplacer = new QuoteReplacer($quote, $destination, $site);
         $templateManager->addPlaceholdersReplacer($quoteReplacer);
 
         $message = $templateManager->getTemplateComputed(
@@ -68,11 +67,12 @@ L'équipe Calmedica.com
             ]
         );
 
-        $this->assertEquals('Votre livraison à ' . $expectedDestination->countryName, $message->subject);
+        $this->assertEquals('Votre livraison à ' . $destination->countryName, $message->subject);
         $this->assertEquals("
 Bonjour " . $expectedUser->firstname . ",
 
-Merci de nous avoir contacté pour votre livraison à " . $expectedDestination->countryName . ".
+Merci de nous avoir contacté pour votre livraison à " . $destination->countryName . ".
+Voici le lien pour suivre votre livraison : ".$url."
 
 Bien cordialement,
 

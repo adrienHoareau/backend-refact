@@ -14,16 +14,30 @@ class QuoteReplacer implements PlaceholdersReplacer
      * @var Quote
      */
     private $quote;
+    /**
+     * 
+     * @var Site
+     */
+    private $site;
+    /**
+     * 
+     * @var Destination
+     */
+    private $destination;
     
-    public function __construct(Quote $quote)
+    public function __construct(Quote $quote, Destination $destination, Site $site)
     {
         $this->quote = $quote;
+        $this->site = $site;
+        $this->destination = $destination;
     }
     
     public function replace(string $text): string
     {
         $text = $this->replaceSummaryPlaceholder($text);
         $text = $this->replaceSummaryHtmlPlaceholder($text);
+        $text = $this->replaceDestinationNamePlaceholder($text);
+        $text = $this->replaceDestinationLinkPlaceholder($text);
         
         return $text;
     }
@@ -38,8 +52,13 @@ class QuoteReplacer implements PlaceholdersReplacer
         return str_replace(self::SUMMARY_HTML_PLACEHOLDER, $this->quote->renderHtml(), $text);
     }
     
-    public function getQuote(): Quote
+    private function replaceDestinationNamePlaceholder(string $text): string
     {
-        return $this->quote;
+        return str_replace(self::DESTINATION_NAME_PLACEHOLDER, $this->destination->countryName, $text);
+    }
+    
+    private function replaceDestinationLinkPlaceholder(string $text): string
+    {
+        return str_replace(self::DESTINATION_LINK_PLACEHOLDER, $this->site->url . '/' . $this->destination->countryName . '/quote/' . $this->quote->id, $text);
     }
 }

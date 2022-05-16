@@ -18,26 +18,62 @@ require_once __DIR__ . '/../src/PlaceholdersReplacers/QuoteReplacer.php';
 
 class QuoteReplacerTest extends TestCase
 {
+    /**
+     * 
+     * @var Quote
+     */
+    private $quote;
+    /**
+     * 
+     * @var QuoteReplacer
+     */
+    private $quoteReplacer;
+    /**
+     * 
+     * @var Site
+     */
+    private $site;
+    /**
+     * 
+     * @var Destination
+     */
+    private $destination;
+    
+    /**
+     * Init the mocks
+     */
+    public function setUp(): void
+    {
+        $faker = \Faker\Factory::create();
+        $destinationId = $faker->randomNumber();
+        $this->destination = DestinationRepository::getInstance()->getById($destinationId);
+        $this->quote = new Quote($faker->randomNumber(), $faker->randomNumber(), $destinationId, $faker->date());
+        $this->site = SiteRepository::getInstance()->getById($this->quote->siteId);
+        
+        $this->quoteReplacer =  new QuoteReplacer($this->quote, $this->destination, $this->site);
+    }
+    
     public function testPlaceholderSummaryIsReplaced(): void
     {
-        $quoteReplacer = $this->getQuoteReplacer();
-        $content = $quoteReplacer->replace('some text '.QuoteReplacer::SUMMARY_PLACEHOLDER);
-        $this->assertEquals('some text ' . $quoteReplacer->getQuote()->id, $content);
+        $content = $this->quoteReplacer->replace('some text '.QuoteReplacer::SUMMARY_PLACEHOLDER);
+        $this->assertEquals('some text ' . $this->quote->id, $content);
     }
     
     public function testPlaceholderSummaryHtmlIsReplaced(): void
     {
-        $quoteReplacer = $this->getQuoteReplacer();
-        $content = $quoteReplacer->replace('some text '.QuoteReplacer::SUMMARY_HTML_PLACEHOLDER);
-        $this->assertEquals('some text <p>' . $quoteReplacer->getQuote()->id . '</p>', $content);
+        $content = $this->quoteReplacer->replace('some text '.QuoteReplacer::SUMMARY_HTML_PLACEHOLDER);
+        $this->assertEquals('some text <p>' . $this->quote->id . '</p>', $content);
     }
     
-    private function getQuoteReplacer(): QuoteReplacer
+    public function testPlaceholderDestinationNameHtmlIsReplaced(): void
     {
-        $faker = \Faker\Factory::create();
-        $destinationId = $faker->randomNumber();
-        $quote = new Quote($faker->randomNumber(), $faker->randomNumber(), $destinationId, $faker->date());
-        
-        return new QuoteReplacer($quote);
+        $content = $this->quoteReplacer->replace('some text '.QuoteReplacer::DESTINATION_NAME_PLACEHOLDER);
+        $this->assertEquals('some text ' . $this->destination->countryName, $content);
+    }
+    
+    public function testPlaceholderDestinationLinkHtmlIsReplaced(): void
+    {
+        $content = $this->quoteReplacer->replace('some text '.QuoteReplacer::DESTINATION_LINK_PLACEHOLDER);
+        $this->assertEquals('some text ' . $this->site->url . '/' . $this->destination->countryName . '/quote/' . $this->quote->id, $content);
     }
 }
