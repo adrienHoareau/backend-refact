@@ -23,12 +23,23 @@ class QuoteReplacer implements PlaceholdersReplacer
     public function replace(string $text, array $data): string
     {
         $text = $this->replaceSummaryPlaceholder($text);
+        $text = $this->replaceSummaryHtmlPlaceholder($text);
         
         return $text;
     }
     
     private function replaceSummaryPlaceholder(string $text): string
     {
-        return str_replace('[quote:summary]', $this->quote->renderText(), $text);
+        return str_replace(self::SUMMARY_PLACEHOLDER, $this->quote->renderText(), $text);
+    }
+    
+    private function replaceSummaryHtmlPlaceholder(string $text): string
+    {
+        return str_replace(self::SUMMARY_HTML_PLACEHOLDER, $this->quote->renderHtml(), $text);
+    }
+    
+    public function getQuote(): Quote
+    {
+        return $this->quote;
     }
 }

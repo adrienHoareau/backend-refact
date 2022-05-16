@@ -20,20 +20,24 @@ class QuoteReplacerTest extends TestCase
 {
     public function testPlaceholderSummaryIsReplaced(): void
     {
+        $quoteReplacer = $this->getQuoteReplacer();
+        $content = $quoteReplacer->replace('some text '.QuoteReplacer::SUMMARY_PLACEHOLDER, []);
+        $this->assertEquals('some text ' . $quoteReplacer->getQuote()->id, $content);
+    }
+    
+    public function testPlaceholderSummaryHtmlIsReplaced(): void
+    {
+        $quoteReplacer = $this->getQuoteReplacer();
+        $content = $quoteReplacer->replace('some text '.QuoteReplacer::SUMMARY_HTML_PLACEHOLDER, []);
+        $this->assertEquals('some text <p>' . $quoteReplacer->getQuote()->id . '</p>', $content);
+    }
+    
+    private function getQuoteReplacer(): QuoteReplacer
+    {
         $faker = \Faker\Factory::create();
         $destinationId = $faker->randomNumber();
         $quote = new Quote($faker->randomNumber(), $faker->randomNumber(), $destinationId, $faker->date());
-
-        $template = new Template(
-            1,
-            'some subject [quote:summary]',
-            "some text [quote:summary]"
-        );
-        $quoteReplacer = new QuoteReplacer($quote);
-        $subject = $quoteReplacer->replace($template->subject, []);
-        $content = $quoteReplacer->replace($template->content, []);
-
-        $this->assertEquals('some subject ' . $quote->id, $subject);
-        $this->assertEquals('some text ' . $quote->id, $content);
+        
+        return new QuoteReplacer($quote);
     }
 }
