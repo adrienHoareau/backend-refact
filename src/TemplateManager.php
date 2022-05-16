@@ -1,7 +1,14 @@
 <?php
 
+require_once __DIR__ . '/PlaceholdersReplacers/PlaceholdersReplacer.php';
+
 class TemplateManager
 {
+    /**
+     * @var PlaceholdersReplacer[]
+     */
+    private $placeholdersReplacers = [];
+    
     public function getTemplateComputed(Template $tpl, array $data)
     {
         $replaced = clone($tpl);
@@ -13,6 +20,10 @@ class TemplateManager
 
     private function computeText($text, array $data)
     {
+        foreach ($this->placeholdersReplacers as $placeholdersReplacer) {
+            $placeholdersReplacer->replace($text, $data);
+        }
+        
         $APPLICATION_CONTEXT = ApplicationContext::getInstance();
 
         $quote = (isset($data['quote']) && $data['quote'] instanceof Quote) ? $data['quote'] : null;
@@ -34,14 +45,7 @@ class TemplateManager
                 if ($containsSummaryHtml !== false) {
                     $text = str_replace(
                         '[quote:summary_html]',
-                        Quote::renderHtml($_quoteFromRepository),
-                        $text
-                    );
-                }
-                if ($containsSummary !== false) {
-                    $text = str_replace(
-                        '[quote:summary]',
-                        Quote::renderText($_quoteFromRepository),
+                        $_quoteFromRepository->renderHtml(),
                         $text
                     );
                 }
@@ -65,5 +69,10 @@ class TemplateManager
         }
 
         return $text;
+    }
+    
+    public function addPlaceholdersReplacer(PlaceholdersReplacer $replacer): void
+    {
+        $this->placeholdersReplacers[] = $replacer;
     }
 }

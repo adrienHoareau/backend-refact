@@ -14,6 +14,7 @@ require_once __DIR__ . '/../src/Repository/DestinationRepository.php';
 require_once __DIR__ . '/../src/Repository/QuoteRepository.php';
 require_once __DIR__ . '/../src/Repository/SiteRepository.php';
 require_once __DIR__ . '/../src/TemplateManager.php';
+require_once __DIR__ . '/../src/PlaceholdersReplacers/QuoteReplacer.php';
 
 class TemplateManagerTest extends TestCase
 {
@@ -57,6 +58,8 @@ Bien cordialement,
 L'équipe Calmedica.com
 ");
         $templateManager = new TemplateManager();
+        $quoteReplacer = new QuoteReplacer($quote);
+        $templateManager->addPlaceholdersReplacer($quoteReplacer);
 
         $message = $templateManager->getTemplateComputed(
             $template,
