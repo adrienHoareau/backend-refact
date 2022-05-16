@@ -14,6 +14,7 @@ require_once __DIR__ . '/../src/Repository/DestinationRepository.php';
 require_once __DIR__ . '/../src/Repository/QuoteRepository.php';
 require_once __DIR__ . '/../src/Repository/SiteRepository.php';
 require_once __DIR__ . '/../src/TemplateManager.php';
+require_once __DIR__ . '/../src/PlaceholdersReplacers/QuoteReplacer.php';
 
 $faker = \Faker\Factory::create();
 
@@ -29,12 +30,17 @@ Bien cordialement,
 
 L'équipe Calmedica.com
 ");
-$templateManager = new TemplateManager();
 
+$destination = DestinationRepository::getInstance()->getById($faker->randomNumber());
+$quote = new Quote($faker->randomNumber(), $faker->randomNumber(), $destination->id, $faker->date());
+$site = SiteRepository::getInstance()->getById($quote->siteId);
+$quoteReplacer = new QuoteReplacer($quote, $destination, $site);
+$templateManager = new TemplateManager();
+$templateManager->addPlaceholdersReplacer($quoteReplacer);
 $message = $templateManager->getTemplateComputed(
     $template,
     [
-        'quote' => new Quote($faker->randomNumber(), $faker->randomNumber(), $faker->randomNumber(), $faker->date())
+        'quote' => $quote
     ]
 );
 
