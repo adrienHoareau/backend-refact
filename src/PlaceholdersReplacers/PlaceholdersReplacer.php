@@ -2,5 +2,5 @@
 
 interface PlaceholdersReplacer
 {
-    public function replace(string $text, array $data): string;
+    public function replace(string $text): string;
 }

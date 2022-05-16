@@ -21,14 +21,14 @@ class QuoteReplacerTest extends TestCase
     public function testPlaceholderSummaryIsReplaced(): void
     {
         $quoteReplacer = $this->getQuoteReplacer();
-        $content = $quoteReplacer->replace('some text '.QuoteReplacer::SUMMARY_PLACEHOLDER, []);
+        $content = $quoteReplacer->replace('some text '.QuoteReplacer::SUMMARY_PLACEHOLDER);
         $this->assertEquals('some text ' . $quoteReplacer->getQuote()->id, $content);
     }
     
     public function testPlaceholderSummaryHtmlIsReplaced(): void
     {
         $quoteReplacer = $this->getQuoteReplacer();
-        $content = $quoteReplacer->replace('some text '.QuoteReplacer::SUMMARY_HTML_PLACEHOLDER, []);
+        $content = $quoteReplacer->replace('some text '.QuoteReplacer::SUMMARY_HTML_PLACEHOLDER);
         $this->assertEquals('some text <p>' . $quoteReplacer->getQuote()->id . '</p>', $content);
     }
     

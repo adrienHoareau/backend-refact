@@ -20,7 +20,7 @@ class QuoteReplacer implements PlaceholdersReplacer
         $this->quote = $quote;
     }
     
-    public function replace(string $text, array $data): string
+    public function replace(string $text): string
     {
         $text = $this->replaceSummaryPlaceholder($text);
         $text = $this->replaceSummaryHtmlPlaceholder($text);

@@ -21,7 +21,7 @@ class TemplateManager
     private function computeText($text, array $data)
     {
         foreach ($this->placeholdersReplacers as $placeholdersReplacer) {
-            $placeholdersReplacer->replace($text, $data);
+            $placeholdersReplacer->replace($text);
         }
         
         $APPLICATION_CONTEXT = ApplicationContext::getInstance();
