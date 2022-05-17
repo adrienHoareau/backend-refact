@@ -15,6 +15,7 @@ require_once __DIR__ . '/../src/Repository/QuoteRepository.php';
 require_once __DIR__ . '/../src/Repository/SiteRepository.php';
 require_once __DIR__ . '/../src/TemplateManager.php';
 require_once __DIR__ . '/../src/PlaceholdersReplacers/QuoteReplacer.php';
+require_once __DIR__ . '/../src/PlaceholdersReplacers/UserReplacer.php';
 
 class TemplateManagerTest extends TestCase
 {
@@ -42,6 +43,7 @@ class TemplateManagerTest extends TestCase
         $quote = new Quote($faker->randomNumber(), $faker->randomNumber(), $destinationId, $faker->date());
         $site = SiteRepository::getInstance()->getById($quote->siteId);
         $url = $site->url . '/' . $destination->countryName . '/quote/' . $quote->id;
+        $user = ApplicationContext::getInstance()->getCurrentUser();
 
         $template = new Template(
             1,
@@ -56,9 +58,11 @@ Bien cordialement,
 
 L'équipe Calmedica.com
 ");
-        $templateManager = new TemplateManager();
         $quoteReplacer = new QuoteReplacer($quote, $destination, $site);
+        $userReplacer = new UserReplacer($user);
+        $templateManager = new TemplateManager();
         $templateManager->addPlaceholdersReplacer($quoteReplacer);
+        $templateManager->addPlaceholdersReplacer($userReplacer);
 
         $message = $templateManager->getTemplateComputed(
             $template,

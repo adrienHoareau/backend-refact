@@ -12,27 +12,16 @@ class TemplateManager
     public function getTemplateComputed(Template $tpl, array $data)
     {
         $replaced = clone($tpl);
-        $replaced->subject = $this->computeText($replaced->subject, $data);
-        $replaced->content = $this->computeText($replaced->content, $data);
+        $replaced->subject = $this->replacePlaceholders($replaced->subject);
+        $replaced->content = $this->replacePlaceholders($replaced->content);
 
         return $replaced;
     }
 
-    private function computeText($text, array $data)
+    private function replacePlaceholders(string $text): string
     {
         foreach ($this->placeholdersReplacers as $placeholdersReplacer) {
             $text = $placeholdersReplacer->replace($text);
-        }
-        
-        $APPLICATION_CONTEXT = ApplicationContext::getInstance();
-
-        /*
-         * USER
-         * [user:*]
-         */
-        $_user  = (isset($data['user'])  && ($data['user']  instanceof User))  ? $data['user']  : $APPLICATION_CONTEXT->getCurrentUser();
-        if($_user) {
-            (strpos($text, '[user:first_name]') !== false) && $text = str_replace('[user:first_name]'       , ucfirst(mb_strtolower($_user->firstname)), $text);
         }
 
         return $text;

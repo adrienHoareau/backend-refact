@@ -15,6 +15,7 @@ require_once __DIR__ . '/../src/Repository/QuoteRepository.php';
 require_once __DIR__ . '/../src/Repository/SiteRepository.php';
 require_once __DIR__ . '/../src/TemplateManager.php';
 require_once __DIR__ . '/../src/PlaceholdersReplacers/QuoteReplacer.php';
+require_once __DIR__ . '/../src/PlaceholdersReplacers/UserReplacer.php';
 
 $faker = \Faker\Factory::create();
 
@@ -35,8 +36,11 @@ $destination = DestinationRepository::getInstance()->getById($faker->randomNumbe
 $quote = new Quote($faker->randomNumber(), $faker->randomNumber(), $destination->id, $faker->date());
 $site = SiteRepository::getInstance()->getById($quote->siteId);
 $quoteReplacer = new QuoteReplacer($quote, $destination, $site);
+$user = ApplicationContext::getInstance()->getCurrentUser();
+$userReplacer = new UserReplacer($user);
 $templateManager = new TemplateManager();
 $templateManager->addPlaceholdersReplacer($quoteReplacer);
+$templateManager->addPlaceholdersReplacer($userReplacer);
 $message = $templateManager->getTemplateComputed(
     $template,
     [
